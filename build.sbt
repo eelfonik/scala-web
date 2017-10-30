@@ -1,4 +1,4 @@
-name := """scala-web-project"""
+name := """scala-web"""
 version := "1.0-SNAPSHOT"
 scalaVersion := "2.12.2"
 
