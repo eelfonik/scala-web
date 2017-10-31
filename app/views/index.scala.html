@@ -1,4 +1,4 @@
-@(timeStr: String)
+@(sunInfo: model.SunInfo)
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -9,6 +9,7 @@
     <body>
         <h1>Hello Play</h1>
         <div>@{Math.random}</div>
-        <div>Current Time: @timeStr</div>
+        <div>sunrise time in SH: @sunInfo.sunRise</div>
+        <div>sunset time in SH: @sunInfo.sunSet</div>
     </body>
 </html>
