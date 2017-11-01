@@ -16,11 +16,13 @@ import model.SunInfo
 
 import service._
 
-class Application @Inject() (components: ControllerComponents, ws: WSClient)
+class Application (components: ControllerComponents, sunService: SunService, weatherService: WeatherService)
     extends AbstractController(components) {
 
-  val sunService = new SunService(ws)
-  val weatherService = new WeatherService(ws)
+  // as we're using DI, we don't need to new 2 classes inside controllers
+  // and move them to the loader
+  // val sunService = new SunService(ws)
+  // val weatherService = new WeatherService(ws)
 
   // note the .async here   
   def index = Action.async {
@@ -29,6 +31,8 @@ class Application @Inject() (components: ControllerComponents, ws: WSClient)
     val sunInfoF = sunService.getSunTime(lat, lng)
     val weatherInfoF = weatherService.getWeather(lat, lng)
 
+    // as we have 2 apis, use for comprehension instead of flatMap/map
+    // 之前还在想如果用了两个单独的map，要如何变成一个,塞进view.html里
     for {
       sunInfo <- sunInfoF
       weatherInfo <- weatherInfoF
