@@ -5,6 +5,7 @@ import play.api.ApplicationLoader.Context
 import play.api._
 // what's this ???
 import play.api.libs.ws.ahc.AhcWSComponents
+import scala.concurrent.Future
 
 import play.api.mvc._
 // where did router come from?
@@ -26,6 +27,7 @@ class AppApplicationLoader extends ApplicationLoader {
     LoggerConfigurator(context.environment.classLoader).foreach { cfg =>
       cfg.configure(context.environment)
     }
+    // where did this .application come from ?
     new AppComponents(context).application
   }
 }
@@ -51,4 +53,11 @@ with AhcWSComponents with AssetsComponents with HttpFiltersComponents {
   lazy val prefix: String = "/"
   lazy val router: Router = wire[Routes]
   lazy val applicationController = wire[Application]
+
+  // as we extends BuiltInComponentsFromContext
+  // so we have some lifecycle field that can run some funcs when application starts/stops
+  applicationLifecycle.addStopHook { () =>
+    Logger.info("the app is about to stop")
+    Future.successful(Unit)
+  }
 }
