@@ -16,7 +16,10 @@ import com.softwaremill.macwire._
 // what's _root_???
 import _root_.controllers.AssetsComponents
 import play.filters.HttpFiltersComponents
+import akka.actor._
 import service.{SunService, WeatherService}
+import filters.{StatsFilter}
+import actors.{StatsActor}
 
 // ApplicationLoader is a builtin trait
 class AppApplicationLoader extends ApplicationLoader {
@@ -37,6 +40,11 @@ class AppApplicationLoader extends ApplicationLoader {
 // and later in Application controller we remove @Inject()
 class AppComponents(context: Context) extends BuiltInComponentsFromContext(context)
 with AhcWSComponents with AssetsComponents with HttpFiltersComponents {
+  lazy val statsActor = actorSystem.actorOf(Props(wire[StatsActor]), StatsActor.name)
+  val onStart = {
+    Logger.info("app is starting")
+    statsActor ! StatsActor.Ping
+  }
   override lazy val controllerComponents = wire[DefaultControllerComponents]
 
   // as we extended the AhcWSComponents trait
@@ -53,6 +61,10 @@ with AhcWSComponents with AssetsComponents with HttpFiltersComponents {
   lazy val prefix: String = "/"
   lazy val router: Router = wire[Routes]
   lazy val applicationController = wire[Application]
+
+  // override the httpFilters 
+  lazy val statsFilter: Filter = wire[StatsFilter]
+  override lazy val httpFilters = Seq(statsFilter)
 
   // as we extends BuiltInComponentsFromContext
   // so we have some lifecycle field that can run some funcs when application starts/stops
