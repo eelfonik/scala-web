@@ -11,3 +11,4 @@ target
 ensime-langserver.log
 pc.stdout.log
 .vscode
+node_modules

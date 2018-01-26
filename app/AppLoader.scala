@@ -43,6 +43,9 @@ with AhcWSComponents with AssetsComponents with HttpFiltersComponents {
   lazy val statsActor = actorSystem.actorOf(Props(wire[StatsActor]), StatsActor.name)
   val onStart = {
     Logger.info("app is starting")
+    // what does the ! means here?
+    // it's the tell (fire and forget) pattern
+    // in order to get a response from an actor, we need to use ? method -> the ask parttern
     statsActor ! StatsActor.Ping
   }
   override lazy val controllerComponents = wire[DefaultControllerComponents]

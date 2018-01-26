@@ -1,4 +1,4 @@
-@(sunInfo: model.SunInfo, temp: Double)
+@(sunInfo: model.SunInfo, temp: Double, requests: Int)
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -7,10 +7,7 @@
            href="@routes.Assets.versioned("images/favicon.png")">
     </head>
     <body>
-        <h1>Hello Play</h1>
-        <div>@{Math.random}</div>
-        <div>上海太阳升起的时间是: @sunInfo.sunRise</div>
-        <div>太阳落下的时间是: @sunInfo.sunSet</div>
-        <div>目前温度为 : @temp 度</div>
+        <div id="react-app"></div>
+        <script src="@routes.Assets.versioned("compiled/bundle.js")"></script>
     </body>
 </html>

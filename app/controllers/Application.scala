@@ -6,6 +6,10 @@ import play.api.mvc._
 
 import java.time.{ZoneId, ZonedDateTime}
 import java.time.format.DateTimeFormatter
+import java.util.concurrent.TimeUnit
+import akka.pattern.ask
+import akka.util.Timeout
+import akka.actor._
 // import java.util.Date
 // import java.text.SimpleDateFormat
 import scala.concurrent.Future
@@ -15,8 +19,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import model.SunInfo
 
 import service._
+import actors._
 
-class Application (components: ControllerComponents, sunService: SunService, weatherService: WeatherService)
+class Application (components: ControllerComponents, sunService: SunService, weatherService: WeatherService, actorSystem: ActorSystem)
     extends AbstractController(components) {
 
   // as we're using DI, we don't need to new 2 classes inside controllers
@@ -31,13 +36,18 @@ class Application (components: ControllerComponents, sunService: SunService, wea
     val sunInfoF = sunService.getSunTime(lat, lng)
     val weatherInfoF = weatherService.getWeather(lat, lng)
 
+    implicit val timeout = Timeout(5, TimeUnit.SECONDS)
+
+    val requestsF = (actorSystem.actorSelection(StatsActor.path) ? StatsActor.GetStats).mapTo[Int]
+
     // as we have 2 apis, use for comprehension instead of flatMap/map
     // 之前还在想如果用了两个单独的map，要如何变成一个,塞进view.html里
     for {
       sunInfo <- sunInfoF
       weatherInfo <- weatherInfoF
+      requests <- requestsF
     } yield {
-      Ok(views.html.index(sunInfo, weatherInfo))
+      Ok(views.html.index(sunInfo, weatherInfo, requests))
     }
     
     // val time = new Date()
