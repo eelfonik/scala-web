@@ -11,8 +11,8 @@ render((
 ), document.getElementById('react-app'));
 
 if (module.hot) {
-  module.hot.accept('./App', () => {
-    const NextApp = require('./App').default;
+  module.hot.accept('./js/App', () => {
+    const NextApp = require('./js/App').default;
     render(
       <AppContainer>
         <NextApp />

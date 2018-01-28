@@ -12,3 +12,4 @@ ensime-langserver.log
 pc.stdout.log
 .vscode
 node_modules
+public/compiled/*

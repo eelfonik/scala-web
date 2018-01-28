@@ -14,12 +14,19 @@ import akka.actor._
 // import java.text.SimpleDateFormat
 import scala.concurrent.Future
 import play.api.libs.ws._
+import play.api.libs.json.Json
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import model.SunInfo
 
 import service._
 import actors._
+
+case class CombinedData(sunInfo: SunInfo, weatherInfo: Double, requests: Int)
+
+object CombinedData {
+  implicit val writes = Json.writes[CombinedData]
+}
 
 class Application (components: ControllerComponents, sunService: SunService, weatherService: WeatherService, actorSystem: ActorSystem)
     extends AbstractController(components) {
@@ -29,8 +36,21 @@ class Application (components: ControllerComponents, sunService: SunService, wea
   // val sunService = new SunService(ws)
   // val weatherService = new WeatherService(ws)
 
+  def index = Action {
+    Ok(views.html.index())
+    
+    // val time = new Date()
+    // val timeStr = new SimpleDateFormat().format(time)
+
+    // this line use successful method of Future
+    // So you don't have specific the ExecutionContext implictly
+    // in this method, it simply wraps the result of an expression in a Future
+    // without scheduling the computation in a different thread
+    // Future.successful { Ok(views.html.index(timeStr)) }  
+  }
+
   // note the .async here   
-  def index = Action.async {
+  def data = Action.async {
     val lat = 31.005
     val lng = 121.4086111
     val sunInfoF = sunService.getSunTime(lat, lng)
@@ -47,16 +67,7 @@ class Application (components: ControllerComponents, sunService: SunService, wea
       weatherInfo <- weatherInfoF
       requests <- requestsF
     } yield {
-      Ok(views.html.index(sunInfo, weatherInfo, requests))
+      Ok(Json.toJson(CombinedData(sunInfo, weatherInfo, requests)))
     }
-    
-    // val time = new Date()
-    // val timeStr = new SimpleDateFormat().format(time)
-
-    // this line use successful method of Future
-    // So you don't have specific the ExecutionContext implictly
-    // in this method, it simply wraps the result of an expression in a Future
-    // without scheduling the computation in a different thread
-    // Future.successful { Ok(views.html.index(timeStr)) }  
   }
 }
