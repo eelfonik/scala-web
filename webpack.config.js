@@ -5,7 +5,7 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 module.exports = {
   entry: ['babel-polyfill', 'react-hot-loader/patch', './front/index.js'],
-  devtool: 'inline-source-map',
+  devtool: 'source-map',
   plugins: [
     new CleanWebpackPlugin(['public/compiled']),
     new HtmlWebpackPlugin({
